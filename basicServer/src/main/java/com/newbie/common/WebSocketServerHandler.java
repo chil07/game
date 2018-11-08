@@ -33,7 +33,7 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 
 public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> {
 
-	private static ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
+	public static ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 	private static final Logger logger = LoggerFactory.getLogger(WebSocketServerHandler.class);
 
 	private WebSocketServerHandshaker handshaker;
@@ -100,25 +100,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 		// 根据不同的request请求处理成不同的对象
 		msgResolver = BasicServer.ac.getBean(MessageResolver.class);
 		MessageEntity msgEntity = msgResolver.resolveMsg(request);
-		if (msgEntity instanceof LoginMessageEntity) {
-			for (Channel channel : channels) {
-				channel.writeAndFlush(new TextWebSocketFrame(request+"加入了大厅"));
-				System.out.println(request+"加入了大厅");
-			}
-		} else if (msgEntity instanceof ChatMessageEntity) {
-			for (Channel channel : channels) {
-				if (channel != ctx.channel()) {
-					channel.writeAndFlush(new TextWebSocketFrame("[" + ctx.channel().remoteAddress() + "]" + request
-							+ " ,欢迎使用netty websocket server服务, 现在时刻:" + new java.util.Date().toString()));
-				} else {
-					channel.writeAndFlush(new TextWebSocketFrame(
-							request + " ,欢迎使用netty websocket server服务, 现在时刻:" + new java.util.Date().toString()));
-
-				}
-			}
-		}
-
-		System.out.println("send a message to channel: " + request);
+		BizThreadPoolUtil.doBiz(ctx,msgEntity);
 
 	}
 
