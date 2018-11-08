@@ -1,0 +1,77 @@
+<html>
+<head>
+<meta charset="GBK">
+Netty WebSocket 时间服务器
+</head>
+<body>
+
+<script type="text/javascript">
+var socket;
+
+        function connectServer() {
+         if (!window.WebSocket) {
+             window.WebSocket = window.MozWebSocket;
+         }
+         if (window.WebSocket) {
+             socket = new WebSocket("ws://localhost:8081/ws");
+             socket.onmessage = function(event) {
+		alert(event.data);
+		if(event.data.indexOf("login")!=-1){
+			var ta = document.getElementById('userArea');
+                 ta.value = ta.value + '\n' + event.data;
+		}else{
+			var ta = document.getElementById('responseText');
+                 ta.value = ta.value + '\n' + event.data;
+		}
+                 
+
+             };
+             socket.onopen = function(event) {
+                 var ta = document.getElementById('responseText');
+                 ta.value = "连接开启!";
+             };
+             socket.onclose = function(event) {
+                 var ta = document.getElementById('responseText');
+                 ta.value = ta.value + "连接被关闭";
+             };
+         } else {
+             alert("你的浏览器不支持 WebSocket！");
+         }
+        }
+function send(message){
+    
+    if(!window.WebSocket){return;}
+    //alert(message);
+    if(socket.readyState == WebSocket.OPEN){
+	//alert("22");
+        socket.send("chat:"+message);
+    }else{
+        alert("websocket没有建立成功");
+    }
+}
+function loginServer(message){
+if(!window.WebSocket){return;}
+    //alert(message);
+    if(socket.readyState == WebSocket.OPEN){
+	//alert("22");
+        socket.send("login:"+message);
+    }else{
+        alert("websocket没有建立成功");
+    }
+}
+</script>
+<form onsubmit="return false;">
+<input type="button" onclick="javascript:connectServer()" value="连接服务器">
+<input type="text" name="username" value=""/>
+<input type="button" onclick="loginServer(this.form.username.value)" value="登录">
+<input type="text" name="message" value="Netty"/>
+<input type="button" value="发送消息" onclick="send(this.form.message.value)"/>
+<hr color="blue"/>
+<h3>应答消息</h3>
+<textarea id="responseText" style="width:500px;height:300px;"></textarea>
+<h3>在线用户</h3>
+<textarea id="userArea" style="width:500px;height:300px;"></textarea>
+</form>
+
+</body>
+</html>
