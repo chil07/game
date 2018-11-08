@@ -1,0 +1,11 @@
+com\newbie\common\WebSocketClient.class
+com\newbie\common\MessageEntity.class
+com\newbie\common\BasicServer.class
+com\newbie\common\WebSocketServerHandler$1.class
+com\newbie\common\MessageResolver.class
+com\newbie\common\BasicServer$1.class
+com\newbie\common\WebSocketServerHandler.class
+com\newbie\common\WebSocketClientHandler.class
+com\newbie\common\WebSocketClient$1.class
+com\newbie\common\ChatMessageEntity.class
+com\newbie\common\LoginMessageEntity.class
