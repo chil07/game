@@ -1,5 +1,8 @@
 package com.newbie.common;
 
+import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +35,17 @@ import io.netty.util.CharsetUtil;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
 public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> {
-
+	
+	//记录所有的channel
 	public static ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
+	
+	//记录所有的room,房间编号和创建人
+	public static ConcurrentHashMap<Integer, String> rooms = new ConcurrentHashMap<Integer, String>();
+	//记录room中人员,房间编号和成员
+	public static ConcurrentHashMap<Integer,ArrayList<String>> roomUser = new ConcurrentHashMap<Integer,ArrayList<String>>();
+	//记录room中channel
+	public static ConcurrentHashMap<Integer,ArrayList<Channel>> roomChannel = new ConcurrentHashMap<Integer,ArrayList<Channel>>();
+	
 	private static final Logger logger = LoggerFactory.getLogger(WebSocketServerHandler.class);
 
 	private WebSocketServerHandshaker handshaker;

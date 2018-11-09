@@ -1,5 +1,7 @@
 package com.newbie.common;
 
+import java.util.ArrayList;
+import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -19,7 +21,7 @@ public class BizThreadPoolUtil {
 			new LinkedBlockingQueue<Runnable>(5));
 
 	public static void doBiz(ChannelHandlerContext ctx, MessageEntity msg) {
-		threadPool.submit(new MsgTaskResult(ctx, msg));
+		singleExecutor.submit(new MsgTaskResult(ctx, msg));
 	}
 }
 
@@ -50,9 +52,38 @@ class MsgTaskResult implements Callable<String> {
 
 				}
 			}
+		} else if(msg instanceof CreateRoomMsgEntity) {
+			//
+			Random r = new Random();
+			Integer roomNum = r.nextInt(100);
+			WebSocketServerHandler.rooms.put(roomNum, msg.getMsg().split(":")[1]);
+			ArrayList<String> users = new ArrayList<String>();
+			users.add(msg.getMsg().split(":")[1]);
+			WebSocketServerHandler.roomUser.put(roomNum, users);
+			ArrayList<Channel> channels = new ArrayList<Channel>();
+			channels.add(ctx.channel());
+			WebSocketServerHandler.roomChannel.put(roomNum, channels);
+			for (Channel channel : WebSocketServerHandler.channels) {
+				channel.writeAndFlush(new TextWebSocketFrame(msg.getMsg() + "创建了房间"+roomNum));
+				
+			}
+		} else if(msg instanceof JoinRoomMsgEntity) {
+			int roomNum = Integer.valueOf(msg.getMsg().split(":")[2]);
+			String username = msg.getMsg().split(":")[1];
+			ArrayList<Channel> channels = WebSocketServerHandler.roomChannel.get(roomNum);
+			if(channels != null) {
+				channels.add(ctx.channel());
+			}
+			ArrayList<String> user = WebSocketServerHandler.roomUser.get(roomNum);
+			if(user != null) {
+				user.add(username);
+			}
+			for(Channel channel: channels) {
+				channel.writeAndFlush(new TextWebSocketFrame(msg.getMsg() + "加入了房间"));
+				
+			}
 		}
 		Thread.sleep(2000);
 		return "send message success";
 	}
-
 }
