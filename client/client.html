@@ -15,13 +15,19 @@ var socket;
          if (window.WebSocket) {
              socket = new WebSocket("ws://localhost:8081/ws");
              socket.onmessage = function(event) {
-		alert(event.data);
+		//alert(event.data);
 		if(event.data.indexOf("login")!=-1){
 			var ta = document.getElementById('userArea');
                  ta.value = ta.value + '\n' + event.data;
+		}else if(event.data.indexOf("createRoom")!=-1){
+			var ta = document.getElementById('roomList');
+            ta.value = ta.value + '\n' + event.data;
+		}else if(event.data.indexOf("joinRoom")!=-1){
+			var ta = document.getElementById('roomList');
+                 ta.value = ta.value + '\n' + event.data;
 		}else{
 			var ta = document.getElementById('responseText');
-                 ta.value = ta.value + '\n' + event.data;
+            ta.value = ta.value + '\n' + event.data;
 		}
                  
 
@@ -59,18 +65,43 @@ if(!window.WebSocket){return;}
         alert("websocket没有建立成功");
     }
 }
+function createRoom(){
+	if(!window.WebSocket){return;}
+    //alert(message);
+    if(socket.readyState == WebSocket.OPEN){
+	//alert("22");
+        socket.send("createRoom:"+document.getElementById("username").value);
+    }else{
+        alert("websocket没有建立成功");
+    }
+}
+function joinRoom(message){
+	if(!window.WebSocket){return;}
+    //alert(message);
+    if(socket.readyState == WebSocket.OPEN){
+	//alert("22");
+        socket.send("joinRoom:"+document.getElementById("username").value+":"+message);
+    }else{
+        alert("websocket没有建立成功");
+    }
+}
 </script>
 <form onsubmit="return false;">
 <input type="button" onclick="javascript:connectServer()" value="连接服务器">
-<input type="text" name="username" value=""/>
+<input type="text" id="username" name="username" value=""/>
 <input type="button" onclick="loginServer(this.form.username.value)" value="登录">
 <input type="text" name="message" value="Netty"/>
 <input type="button" value="发送消息" onclick="send(this.form.message.value)"/>
+<input type="button" value="创建房间" onclick="createRoom()"/>
+<input type="text" id="roomid" name="roomid" value=""/>
+<input type="button" value="加入房间" onclick="joinRoom(this.form.roomid.value)"/>
 <hr color="blue"/>
 <h3>应答消息</h3>
 <textarea id="responseText" style="width:500px;height:300px;"></textarea>
 <h3>在线用户</h3>
 <textarea id="userArea" style="width:500px;height:300px;"></textarea>
+<h3>房间列表</h3>
+<textarea id="roomList" style="width:500px;height:300px;"></textarea>
 </form>
 
 </body>
